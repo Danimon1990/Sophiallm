@@ -79,11 +79,15 @@ const ChatInterface = () => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
 
     try {
-      // Connect to RAG backend
+      // Get Firebase auth token
+      const token = localStorage.getItem('token');
+
+      // Connect to RAG backend with authentication
       const response = await fetch('https://sophiallm-backend-786509496415.us-central1.run.app/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ question: inputMessage }),
       });

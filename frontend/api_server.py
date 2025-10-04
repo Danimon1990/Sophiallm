@@ -10,6 +10,9 @@ import re
 import os
 import sys
 from openai import OpenAI
+from functools import wraps
+import firebase_admin
+from firebase_admin import credentials, auth
 
 # Add the embeddings directory to the path
 sys.path.append('../embeddings')
@@ -18,8 +21,39 @@ sys.path.append('../embeddings')
 # Set your API key as an environment variable: export OPENAI_API_KEY='your-key-here'
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
+# Initialize Firebase Admin SDK (for Cloud Run, it uses Application Default Credentials)
+try:
+    firebase_admin.initialize_app()
+    print("✅ Firebase Admin SDK initialized")
+except Exception as e:
+    print(f"⚠️  Firebase Admin SDK initialization: {e}")
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
+
+# Authentication decorator
+def require_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Get token from Authorization header
+        auth_header = request.headers.get('Authorization')
+
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'No authorization token provided'}), 401
+
+        token = auth_header.split('Bearer ')[1]
+
+        try:
+            # Verify the Firebase ID token
+            decoded_token = auth.verify_id_token(token)
+            request.user_id = decoded_token['uid']
+            request.user_email = decoded_token.get('email')
+            return f(*args, **kwargs)
+        except Exception as e:
+            print(f"❌ Token verification failed: {e}")
+            return jsonify({'error': 'Invalid authentication token'}), 401
+
+    return decorated_function
 
 # Load the RAG system
 def load_rag_system():
@@ -239,21 +273,25 @@ Please answer this question as Bob De Filippis, synthesizing the insights from t
 chunks, metadata = load_rag_system()
 
 @app.route('/api/chat', methods=['POST'])
+@require_auth
 def chat():
-    """Handle chat requests"""
+    """Handle chat requests (requires authentication)"""
     try:
         data = request.get_json()
         question = data.get('question', '')
-        
+
         if not question:
             return jsonify({'error': 'No question provided'}), 400
-        
+
         if not chunks:
             return jsonify({'error': 'RAG system not loaded'}), 500
-        
+
+        # Log authenticated user (for monitoring)
+        print(f"📝 Question from user {request.user_email}: {question[:50]}...")
+
         # Search for relevant chunks
         relevant_chunks = search_books(question, chunks, top_k=3)
-        
+
         # Generate answer in conversational style
         answer = generate_answer(question, relevant_chunks)
 
@@ -261,7 +299,7 @@ def chat():
             'answer': answer,
             'question': question
         })
-        
+
     except Exception as e:
         print(f"Error in chat endpoint: {e}")
         return jsonify({'error': 'Internal server error'}), 500
