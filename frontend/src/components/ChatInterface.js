@@ -80,7 +80,7 @@ const ChatInterface = () => {
 
     try {
       // Connect to RAG backend
-      const response = await fetch('http://localhost:5001/api/chat', {
+      const response = await fetch('https://sophiallm-backend-786509496415.us-central1.run.app/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
