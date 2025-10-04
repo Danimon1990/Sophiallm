@@ -1,0 +1,52 @@
+# Node modules and build files
+node_modules/
+npm-debug.log
+build/
+dist/
+.npm
+.eslintcache
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+*.so
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test.js
+*.spec.js
+
+# Documentation
+README.md
+*.md
+
+# Environment files (don't include in Docker image)
+.env
+.env.local
+.env.production
+
+# Source files (we only need build output for frontend)
+src/
+public/
+package.json
+package-lock.json
+tailwind.config.js

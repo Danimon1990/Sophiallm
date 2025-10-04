@@ -1,0 +1,24 @@
+{
+  "name": "bobs-books-ai",
+  "version": "1.0.0",
+  "description": "Interactive AI experience for Bob's three books",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:functions\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:functions": "cd functions && npm run serve",
+    "build": "cd frontend && npm run build",
+    "deploy": "firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "setup": "npm install && cd frontend && npm install && cd ../functions && npm install"
+  },
+  "keywords": ["ai", "books", "rag", "firebase", "react"],
+  "author": "Robert DeFilippis",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "firebase-tools": "^13.0.0"
+  }
+}
+

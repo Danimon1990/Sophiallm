@@ -1,0 +1,10 @@
+{
+  "total_chunks": 2607,
+  "embedding_dimensions": 768,
+  "books_processed": [
+    "Signals in the Noise ",
+    "Unified_Mind_ Interior for print",
+    "The Embodied Mind interior for print"
+  ],
+  "total_words": 268795
+}

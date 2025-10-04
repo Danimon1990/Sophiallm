@@ -1,0 +1,12 @@
+# Google Cloud Configuration
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+GOOGLE_CLOUD_REGION=us-central1
+
+# Vertex AI Configuration (optional - will be created if not provided)
+INDEX_ENDPOINT_ID=
+INDEX_ID=
+
+# Google Cloud Service Account Key (optional - use gcloud auth if available)
+GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account-key.json
+
