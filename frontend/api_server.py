@@ -29,12 +29,24 @@ except Exception as e:
     print(f"⚠️  Firebase Admin SDK initialization: {e}")
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for React frontend
+# Enable CORS for React frontend with proper configuration
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:3000", "https://sophiallm.web.app", "https://sophiallm.firebaseapp.com"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 # Authentication decorator
 def require_auth(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Allow OPTIONS requests for CORS preflight
+        if request.method == 'OPTIONS':
+            return '', 204
+
         # Get token from Authorization header
         auth_header = request.headers.get('Authorization')
 
