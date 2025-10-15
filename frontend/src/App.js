@@ -71,9 +71,21 @@ function App() {
           path="/chat"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-                <Header />
-                <ChatInterface />
+              <div className="min-h-screen relative" style={{
+                background: 'linear-gradient(to bottom right, rgb(248, 250, 252), rgb(243, 232, 255), rgb(239, 246, 255))'
+              }}>
+                {/* Animated Background Blobs */}
+                <div className="animated-background">
+                  <div className="blob blob-1"></div>
+                  <div className="blob blob-2"></div>
+                  <div className="blob blob-3"></div>
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <Header />
+                  <ChatInterface />
+                </div>
               </div>
             </ProtectedRoute>
           }
