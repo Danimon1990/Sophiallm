@@ -56,15 +56,11 @@ const Signup = () => {
       const user = userCredential.user;
       const token = await user.getIdToken();
 
-      // Create user data object with 3 free questions
+      // Create user data object
       const userData = {
         name: formData.name,
         email: user.email,
         uid: user.uid,
-        questionsAsked: 0,
-        questionsRemaining: 3,
-        hasUnlimitedAccess: false,
-        ownedBooks: [], // Array of book IDs/codes the user has purchased
         createdAt: new Date().toISOString()
       };
 
@@ -111,7 +107,7 @@ const Signup = () => {
             <span className="text-2xl font-bold text-gray-900">Sophia AI</span>
           </Link>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Your Account</h2>
-          <p className="text-gray-600">Get 3 free questions to start your journey</p>
+          <p className="text-gray-600">Start your philosophical journey</p>
         </div>
 
         {/* Signup Form */}
@@ -225,9 +221,9 @@ const Signup = () => {
           <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
             <p className="text-sm font-semibold text-indigo-900 mb-2">What you get:</p>
             <ul className="text-sm text-indigo-700 space-y-1">
-              <li>✓ 3 free questions about Robert's concepts</li>
-              <li>✓ Access to philosophical insights</li>
-              <li>✓ Unlimited access with book purchase</li>
+              <li>✓ Unlimited questions about Robert's concepts</li>
+              <li>✓ Access to philosophical insights from all three books</li>
+              <li>✓ AI-powered conversations with Sophia</li>
             </ul>
           </div>
 

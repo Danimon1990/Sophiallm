@@ -1,39 +1,57 @@
 import React from 'react';
-import { BookOpenIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+import { SparklesIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
-    <header className="bg-white shadow-sm border-b">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center justify-center space-x-3">
-          <div className="flex items-center space-x-2">
-            <BookOpenIcon className="h-8 w-8 text-primary-600" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Bob's Books AI</h1>
-              <p className="text-sm text-gray-600">Interactive Chat with Bob's Knowledge</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-1 bg-primary-100 px-3 py-1 rounded-full">
-            <SparklesIcon className="h-4 w-4 text-primary-600" />
-            <span className="text-xs font-medium text-primary-700">AI Powered</span>
-          </div>
+    <header className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 shadow-sm border-b">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+        {/* Logout Button - Top Right */}
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-2 bg-white hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all border border-gray-200"
+          >
+            <ArrowRightOnRectangleIcon className="h-5 w-5" />
+            <span className="font-medium">Log Out</span>
+          </button>
         </div>
-        
-        <div className="mt-4 text-center">
-          <p className="text-gray-600">
-            Ask questions about consciousness, embodied mind, unified mind, and signals in the noise
-          </p>
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Signals in the Noise
-            </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              Unified Mind
-            </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-              The Embodied Mind
-            </span>
+
+        {/* Main Title */}
+        <div className="text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 leading-tight">
+            Answer Chatbot for Books by<br />
+            Author Robert De Filippis
+          </h1>
+
+          {/* AI Powered Badge */}
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <SparklesIcon className="h-5 w-5 text-primary-600" />
+            <span className="text-xl font-semibold text-primary-600">AI Powered</span>
           </div>
+
+          {/* Subtitle */}
+          <p className="text-lg text-gray-700 mb-1">
+            Ask questions about the books
+          </p>
+          <p className="text-base text-gray-600 italic">
+            <span className="font-medium">Signals in the Noise</span>, <span className="font-medium">Unified Mind</span>, <span className="font-medium">The Embodied Mind</span>
+          </p>
         </div>
       </div>
     </header>
@@ -41,6 +59,9 @@ const Header = () => {
 };
 
 export default Header;
+
+
+
 
 
 

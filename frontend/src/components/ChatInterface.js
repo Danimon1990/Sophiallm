@@ -1,24 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PaperAirplaneIcon, UserIcon, BookOpenIcon, SparklesIcon } from '@heroicons/react/24/outline';
-import RedeemCode from './RedeemCode';
+import { PaperAirplaneIcon, UserIcon, BookOpenIcon } from '@heroicons/react/24/outline';
+import { auth } from '../firebase';
 
 const ChatInterface = () => {
-  // Get user from localStorage
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : {
-      questionsAsked: 0,
-      questionsRemaining: 3,
-      hasUnlimitedAccess: false,
-      ownedBooks: []
-    };
-  });
-
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: 'bot',
-      content: "Hello! I'm Sophia, your AI companion for exploring Robert De Filippis's philosophical teachings. I'm here to help you integrate the profound concepts from his books into your life. What would you like to explore today?",
+      content: "Hello! I'm Sophia, Robert De Filippis's AI assistant. I'm here to help you explore the philosophical concepts from his books - 'Signals in the Noise,' 'Unified Mind,' and 'The Embodied Mind.' I can answer questions about consciousness, embodiment, spiritual practices, and unified thinking based directly on what Robert has written. What would you like to know?",
       timestamp: new Date(),
       sources: []
     }
@@ -26,11 +15,6 @@ const ChatInterface = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-
-  // Handler for successful code redemption
-  const handleRedeemSuccess = (updatedUser) => {
-    setUser(updatedUser);
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,19 +28,6 @@ const ChatInterface = () => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
 
-    // Check question limit (unless they have unlimited access)
-    if (!user.hasUnlimitedAccess && user.questionsAsked >= 3) {
-      const limitMessage = {
-        id: Date.now(),
-        type: 'bot',
-        content: "You've used your 3 free questions! To continue exploring Robert's philosophical teachings, please redeem a book access code above or purchase one of his books to unlock unlimited access.",
-        timestamp: new Date(),
-        sources: []
-      };
-      setMessages(prev => [...prev, limitMessage]);
-      return;
-    }
-
     const userMessage = {
       id: Date.now(),
       type: 'user',
@@ -69,18 +40,13 @@ const ChatInterface = () => {
     setInputMessage('');
     setIsLoading(true);
 
-    // Update user question tracking
-    const updatedUser = {
-      ...user,
-      questionsAsked: user.questionsAsked + 1,
-      questionsRemaining: user.hasUnlimitedAccess ? 999 : Math.max(0, 3 - (user.questionsAsked + 1))
-    };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-
     try {
-      // Get Firebase auth token
-      const token = localStorage.getItem('token');
+      // Get fresh Firebase auth token (tokens expire after 1 hour)
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('Not authenticated');
+      }
+      const token = await currentUser.getIdToken(true); // Force refresh
 
       // Connect to RAG backend with authentication
       const response = await fetch('https://sophiallm-backend-786509496415.us-central1.run.app/api/chat', {
@@ -135,40 +101,7 @@ const ChatInterface = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Redeem Code Component */}
-      <RedeemCode user={user} onRedeemSuccess={handleRedeemSuccess} />
-
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Question Counter Banner */}
-        {!user.hasUnlimitedAccess && (
-          <div className={`px-6 py-3 text-center text-sm font-medium ${
-            user.questionsAsked >= 3
-              ? 'bg-red-50 text-red-700'
-              : user.questionsAsked >= 2
-              ? 'bg-yellow-50 text-yellow-700'
-              : 'bg-indigo-50 text-indigo-700'
-          }`}>
-            {user.questionsAsked >= 3 ? (
-              <>
-                <span className="font-semibold">No questions remaining.</span> Redeem a book code above for unlimited access!
-              </>
-            ) : (
-              <>
-                <SparklesIcon className="inline h-4 w-4 mr-1" />
-                <span className="font-semibold">{user.questionsRemaining} free question{user.questionsRemaining !== 1 ? 's' : ''} remaining</span>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Unlimited Access Banner */}
-        {user.hasUnlimitedAccess && (
-          <div className="px-6 py-3 text-center text-sm font-medium bg-green-50 text-green-700">
-            <SparklesIcon className="inline h-4 w-4 mr-1" />
-            <span className="font-semibold">Unlimited Access</span> - Thank you for your support!
-          </div>
-        )}
-
         {/* Messages Area */}
         <div className="h-96 overflow-y-auto p-6 space-y-4">
           {messages.map((message) => (
@@ -286,11 +219,60 @@ const ChatInterface = () => {
           </div>
         </div>
       </div>
+
+      {/* Book Covers Section - Below Chat */}
+      <div className="mt-12 mb-8">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">
+          SophiaLLM
+        </h2>
+        <p className="text-center text-lg text-gray-600 mb-8">
+          Based on a trilogy by Robert De Filippis
+        </p>
+
+        {/* Book Covers */}
+        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+          <div className="flex flex-col items-center group">
+            <div className="relative overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <img
+                src="https://robertdefilippis.net/wp-content/uploads/2025/05/Signals-in-the-Noise-Robert-Defilipiss.jpg"
+                alt="Signals in the Noise"
+                className="h-64 w-auto object-cover"
+              />
+            </div>
+            <p className="mt-3 text-sm font-medium text-gray-700">Signals in the Noise</p>
+          </div>
+
+          <div className="flex flex-col items-center group">
+            <div className="relative overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <img
+                src="https://robertdefilippis.net/wp-content/uploads/2025/07/TheUnifiedMindEbookCover-scaled.jpg"
+                alt="Unified Mind"
+                className="h-64 w-auto object-cover"
+              />
+            </div>
+            <p className="mt-3 text-sm font-medium text-gray-700">Unified Mind</p>
+          </div>
+
+          <div className="flex flex-col items-center group">
+            <div className="relative overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <img
+                src="https://robertdefilippis.net/wp-content/uploads/2025/08/TheEmbodiedMindEbookCoverRGB-scaled.jpeg"
+                alt="The Embodied Mind"
+                className="h-64 w-auto object-cover"
+              />
+            </div>
+            <p className="mt-3 text-sm font-medium text-gray-700">The Embodied Mind</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default ChatInterface;
+
+
+
 
 
 

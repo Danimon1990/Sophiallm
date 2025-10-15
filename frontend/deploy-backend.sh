@@ -12,7 +12,8 @@ echo "=========================================="
 PROJECT_ID="sophiallm-474120"
 REGION="us-central1"
 SERVICE_NAME="sophiallm-backend"
-IMAGE_NAME="gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
+REPOSITORY="sophiallm-backend"
+IMAGE_NAME="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${SERVICE_NAME}"
 
 # Check if gcloud is installed
 if ! command -v gcloud &> /dev/null; then
@@ -30,6 +31,14 @@ echo "🔧 Enabling required APIs..."
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable run.googleapis.com
 gcloud services enable secretmanager.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
+
+# Create Artifact Registry repository if it doesn't exist
+echo "📦 Creating Artifact Registry repository..."
+gcloud artifacts repositories create ${REPOSITORY} \
+  --repository-format=docker \
+  --location=${REGION} \
+  --description="Docker repository for SophiaLLM backend" 2>/dev/null || echo "Repository already exists"
 
 # Build the container image
 echo "🐳 Building container image..."

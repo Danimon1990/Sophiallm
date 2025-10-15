@@ -22,6 +22,11 @@ const RedeemCode = ({ user, onRedeemSuccess }) => {
       id: 'embodied-mind',
       name: 'The Embodied Mind',
       color: 'purple'
+    },
+    'BOBMIND': {
+      id: 'test-access',
+      name: 'Test Access - All Books',
+      color: 'indigo'
     }
   };
 

@@ -28,9 +28,7 @@ function App() {
         const userData = {
           email: user.email,
           name: user.displayName || user.email.split('@')[0],
-          uid: user.uid,
-          questionsRemaining: JSON.parse(localStorage.getItem('user'))?.questionsRemaining || 3,
-          hasUnlimitedAccess: JSON.parse(localStorage.getItem('user'))?.hasUnlimitedAccess || false
+          uid: user.uid
         };
 
         localStorage.setItem('user', JSON.stringify(userData));
@@ -73,7 +71,7 @@ function App() {
           path="/chat"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <div className="min-h-screen bg-gray-50">
+              <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
                 <Header />
                 <ChatInterface />
               </div>

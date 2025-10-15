@@ -37,19 +37,12 @@ const Login = () => {
       const user = userCredential.user;
       const token = await user.getIdToken();
 
-      // Get existing user data or create new
-      const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
-
       // Create user data object
       const userData = {
         email: user.email,
         name: user.displayName || user.email.split('@')[0],
         uid: user.uid,
-        questionsAsked: existingUser.questionsAsked || 0,
-        questionsRemaining: existingUser.questionsRemaining || 3,
-        hasUnlimitedAccess: existingUser.hasUnlimitedAccess || false,
-        ownedBooks: existingUser.ownedBooks || [],
-        createdAt: existingUser.createdAt || new Date().toISOString()
+        createdAt: new Date().toISOString()
       };
 
       // Store user data and token in localStorage

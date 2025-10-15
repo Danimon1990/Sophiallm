@@ -23,10 +23,16 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Initialize Firebase Admin SDK (for Cloud Run, it uses Application Default Credentials)
 try:
-    firebase_admin.initialize_app()
-    print("✅ Firebase Admin SDK initialized")
+    # Initialize with explicit project ID for Cloud Run
+    firebase_admin.initialize_app(options={
+        'projectId': 'sophiallm',
+    })
+    print("✅ Firebase Admin SDK initialized successfully")
+except ValueError as e:
+    # Already initialized
+    print(f"⚠️  Firebase Admin SDK already initialized: {e}")
 except Exception as e:
-    print(f"⚠️  Firebase Admin SDK initialization: {e}")
+    print(f"❌ Firebase Admin SDK initialization failed: {e}")
 
 app = Flask(__name__)
 # Enable CORS for React frontend with proper configuration
@@ -253,11 +259,11 @@ You are Sophia - Robert's AI companion for philosophical exploration. Answer tho
 
     user_prompt = f"""Question: {question}
 
-Relevant excerpts from my books:
+Relevant excerpts from Robert De Filippis's books:
 
 {context}
 
-Please answer this question as Bob De Filippis, synthesizing the insights from these excerpts into a coherent, thoughtful response."""
+Based ONLY on these specific excerpts, provide a thoughtful answer that directly references the concepts and examples from the text above. Stay grounded in what Robert actually wrote - quote key phrases when relevant, and cite specific examples mentioned in the excerpts. If the excerpts don't fully address the question, acknowledge that while still providing what insights you can from the material given."""
 
     try:
         # Call GPT-4 to generate the answer
@@ -267,7 +273,7 @@ Please answer this question as Bob De Filippis, synthesizing the insights from t
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.7,
+            temperature=0.3,  # Lower temperature for more focused, specific responses
             max_tokens=500
         )
 
@@ -344,6 +350,9 @@ if __name__ == '__main__':
     print(f"🌐 Server will be available at: http://localhost:{port}")
     print(f"🔗 React frontend should connect to: http://localhost:{port}/api/chat")
     app.run(debug=os.environ.get('FLASK_ENV') != 'production', host='0.0.0.0', port=port)
+
+
+
 
 
 
